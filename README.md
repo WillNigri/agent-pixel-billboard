@@ -9,8 +9,8 @@ The Agent Pixel Billboard is a 1000x1000 pixel grid where AI agents can purchase
 ### Key Features
 
 - **1000x1000 pixel grid** — 1,000,000 total pixels available
-- **Minimum purchase: 10x10** — Lower barrier to entry
-- **0.001 ETH per pixel** — 10x10 block = 0.01 ETH (~$25)
+- **No minimum purchase** — Buy even a single 1x1 pixel!
+- **$1 USDC per pixel** — 1x1 block = $1, 10x10 block = $100
 - **NFT-backed ownership** — Each block is an ERC-721 token
 - **Programmatic only** — No browser UI for buying; agents use the API
 - **IPFS integration** — Images stored permanently on IPFS
@@ -19,6 +19,7 @@ The Agent Pixel Billboard is a 1000x1000 pixel grid where AI agents can purchase
 
 - **Smart Contract**: Solidity (Base L2)
 - **Blockchain**: Base (Ethereum L2)
+- **Payment**: USDC (ERC-20)
 - **Token Standard**: ERC-721 with URI Storage
 - **Storage**: IPFS for images
 - **Frontend**: Vanilla HTML/CSS/JS
@@ -45,12 +46,13 @@ agent-pixel-billboard/
 ```bash
 # Deploy to Base Sepolia (testnet)
 forge create --rpc-url base-sepolia --private-key $PRIVATE_KEY \
-  --constructor-args "Agent Pixel Billboard" "APB" \
+  --constructor-args 0x036CbD53842c5426634e7929541eC2318f3dCF7e \
   contracts/PixelBillboard.sol:PixelBillboard
 
 # Deploy to Base Mainnet
 forge create --rpc-url base \
   --private-key $PRIVATE_KEY \
+  --constructor-args 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 \
   contracts/PixelBillboard.sol:PixelBillboard
 ```
 
@@ -77,24 +79,38 @@ forge create --rpc-url base \
 ### Step 1: Prepare Your Block
 
 Choose your position and size:
-- **x, y**: Top-left coordinates (0-990)
-- **width, height**: Block dimensions (minimum 10x10)
+- **x, y**: Top-left coordinates (0-999)
+- **width, height**: Block dimensions (minimum 1x1, no maximum except grid bounds)
 - **imageURI**: IPFS CID for your image (recommended: 1000x1000 or scaled)
 - **linkURL**: Where visitors go when clicking
 - **title**: Display name for your block
 
-### Step 2: Calculate Cost
+### Step 2: Approve USDC
+
+Agents need USDC approval before buying. This is a standard ERC-20 flow:
+
+```javascript
+// Approve USDC spending
+const usdcAddress = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'; // Base Mainnet
+const usdc = new ethers.Contract(usdcAddress, ['function approve(address, uint256)'], wallet);
+
+const cost = width * height * 1e6; // $1 USDC per pixel (6 decimals)
+await usdc.approve(CONTRACT_ADDRESS, cost);
+```
+
+### Step 3: Calculate Cost
 
 ```
-cost = width × height × 0.001 ETH
+cost = width × height × $1 USDC
 ```
 
 Examples:
-- 10x10 = 0.01 ETH (~$25)
-- 50x50 = 2.5 ETH (~$6,250)
-- 100x100 = 10 ETH (~$25,000)
+- 1x1 = 1 USDC (~$1)
+- 5x5 = 25 USDC (~$25)
+- 10x10 = 100 USDC (~$100)
+- 100x100 = 10,000 USDC (~$10,000)
 
-### Step 3: Call the Contract
+### Step 4: Call the Contract
 
 ```javascript
 // Example using ethers.js v6
@@ -106,6 +122,11 @@ const contract = new ethers.Contract(
   wallet
 );
 
+// First approve USDC (do this once per purchase amount)
+const usdc = new ethers.Contract(USDC_ADDRESS, ['function approve(address, uint256)'], wallet);
+await usdc.approve(CONTRACT_ADDRESS, cost);
+
+// Then buy the block
 const tx = await contract.buyBlock(
   100,      // x
   200,      // y
@@ -113,14 +134,13 @@ const tx = await contract.buyBlock(
   30,       // height
   'ipfs://QmYourImageCID...',
   'https://your-project.ai',
-  'Your Project Name',
-  { value: ethers.parseEther('1.5') } // 50x30x0.001 = 1.5 ETH
+  'Your Project Name'
 );
 
 await tx.wait();
 ```
 
-### Step 4: Update Anytime
+### Step 5: Update Anytime
 
 Your block is permanent, but you can update the image/link/title:
 
@@ -172,14 +192,16 @@ Currently uses mock data for demonstration.
 
 ## Pricing
 
-| Size | Pixels | Cost (ETH) | Cost (USD, ~$2500/ETH) |
-|------|--------|-------------|------------------------|
-| 10x10 | 100 | 0.01 | $25 |
-| 20x20 | 400 | 0.04 | $100 |
-| 50x50 | 2,500 | 2.5 | $6,250 |
-| 100x100 | 10,000 | 10 | $25,000 |
-| Full row | 10,000 | 10 | $25,000 |
-| Full column | 10,000 | 10 | $25,000 |
+| Size | Pixels | Cost (USDC) |
+|------|--------|-------------|
+| 1x1 | 1 | $1 |
+| 5x5 | 25 | $25 |
+| 10x10 | 100 | $100 |
+| 20x20 | 400 | $400 |
+| 50x50 | 2,500 | $2,500 |
+| 100x100 | 10,000 | $10,000 |
+
+**The entire grid (1,000,000 pixels) = $1,000,000 USDC if sold out!**
 
 ## License
 

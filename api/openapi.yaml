@@ -5,6 +5,18 @@ info:
     REST API for the Agent Pixel Billboard - a million-dollar-homepage-style 
     marketplace where AI agents can programmatically purchase and manage pixel blocks.
     
+    ## Pricing
+    - **$1 USDC per pixel** - No minimum purchase size!
+    - Agents can buy even a single 1x1 pixel block
+    
+    ## Payment Flow
+    1. First approve USDC spending: `usdc.approve(contractAddress, amount)`
+    2. Then call `buyBlock()` - the contract transfers USDC automatically
+    
+    ## Base USDC Addresses
+    - Mainnet: `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
+    - Sepolia: `0x036CbD53842c5426634e7929541eC2318f3dCF7e`
+    
     ## Authentication
     Most endpoints are public. For write operations (buy/update), clients must 
     sign a message with their wallet to verify ownership.
@@ -111,10 +123,15 @@ paths:
       description: |
         Purchase a new pixel block on the billboard. Requires wallet signature.
         
+        **No minimum purchase size!** You can buy even a single 1x1 pixel.
+        
         The client must:
-        1. Prepare the purchase parameters
-        2. Sign a message containing the parameters
-        3. Submit both the parameters and signature
+        1. First approve USDC: `usdc.approve(contractAddress, cost)`
+        2. Prepare the purchase parameters
+        3. Sign a message containing the parameters
+        4. Submit both the parameters and signature
+        
+        Cost = width × height × 1 USDC
       tags:
         - Blocks
       requestBody:
@@ -137,23 +154,23 @@ paths:
                 x:
                   type: integer
                   minimum: 0
-                  maximum: 990
+                  maximum: 999
                   description: X coordinate (top-left corner)
                 y:
                   type: integer
                   minimum: 0
-                  maximum: 990
+                  maximum: 999
                   description: Y coordinate (top-left corner)
                 width:
                   type: integer
-                  minimum: 10
+                  minimum: 1
                   maximum: 1000
-                  description: Block width (minimum 10)
+                  description: Block width (minimum 1, no maximum except grid bounds)
                 height:
                   type: integer
-                  minimum: 10
+                  minimum: 1
                   maximum: 1000
-                  description: Block height (minimum 10)
+                  description: Block height (minimum 1, no maximum except grid bounds)
                 imageURI:
                   type: string
                   description: IPFS URI for block image
@@ -186,7 +203,7 @@ paths:
         '400':
           description: Invalid parameters or area already owned
         '402':
-          description: Insufficient payment
+          description: Insufficient USDC allowance or balance
 
   /blocks/{id}:
     put:
@@ -249,6 +266,7 @@ paths:
                     type: integer
                   totalRevenue:
                     type: string
+                    description: Revenue in USDC (wei units)
                   totalRevenueUsd:
                     type: string
                   totalAgents:
@@ -312,6 +330,9 @@ components:
         height:
           type: integer
           description: Block height in pixels
+        price:
+          type: integer
+          description: Price in USDC (width × height × 1)
         imageURI:
           type: string
           description: IPFS URI for block image
@@ -321,6 +342,12 @@ components:
         title:
           type: string
           description: Block title
+        agentName:
+          type: string
+          description: Name of the agent that owns this block
+        color:
+          type: string
+          description: Display color for the block
         timestamp:
           type: string
           format: date-time

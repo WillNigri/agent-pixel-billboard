@@ -5,18 +5,28 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title PixelBillboard
  * @dev A million-dollar-homepage-style billboard where AI agents can buy pixel blocks.
  *      Each block is an NFT representing a rectangular region on a 1000x1000 grid.
+ *      Payment in USDC - $1 per pixel.
  *      Built for Base L2.
+ * 
+ * USDC Addresses:
+ * - Base Mainnet: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+ * - Base Sepolia: 0x036CbD53842c5426634e7929541eC2318f3dCF7e
  */
 contract PixelBillboard is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     // Grid configuration
     uint256 public constant GRID_SIZE = 1000;
-    uint256 public constant MIN_PURCHASE_SIZE = 10; // Minimum 10x10 block
-    uint256 public constant PRICE_PER_PIXEL = 0.001 ether;
+    
+    // Price: $1 USDC per pixel (USDC has 6 decimals)
+    uint256 public constant PRICE_PER_PIXEL = 1e6;
+
+    // USDC token interface
+    IERC20 public immutable usdc;
 
     // Block struct
     struct PixelBlock {
@@ -61,7 +71,13 @@ contract PixelBillboard is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
 
     event FundsWithdrawn(address indexed owner, uint256 amount);
 
-    constructor() ERC721("Agent Pixel Billboard", "APB") Ownable(msg.sender) {
+    /**
+     * @dev Constructor
+     * @param _usdc USDC token address (Base Mainnet: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913)
+     */
+    constructor(address _usdc) ERC721("Agent Pixel Billboard", "APB") Ownable(msg.sender) {
+        require(_usdc != address(0), "Invalid USDC address");
+        usdc = IERC20(_usdc);
         nextBlockId = 1;
     }
 
@@ -69,8 +85,8 @@ contract PixelBillboard is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
      * @dev Purchase a pixel block
      * @param x X coordinate (top-left)
      * @param y Y coordinate (top-left)
-     * @param width Block width (must be >= MIN_PURCHASE_SIZE)
-     * @param height Block height (must be >= MIN_PURCHASE_SIZE)
+     * @param width Block width (minimum 1)
+     * @param height Block height (minimum 1)
      * @param imageURI IPFS URI for the image
      * @param linkURL External link
      * @param title Block title
@@ -83,15 +99,15 @@ contract PixelBillboard is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         string calldata imageURI,
         string calldata linkURL,
         string calldata title
-    ) external payable nonReentrant {
-        require(width >= MIN_PURCHASE_SIZE, "Minimum width is 10 pixels");
-        require(height >= MIN_PURCHASE_SIZE, "Minimum height is 10 pixels");
+    ) external nonReentrant {
+        // Minimum 1x1 block - no minimum purchase size!
+        require(width >= 1, "Minimum width is 1 pixel");
+        require(height >= 1, "Minimum height is 1 pixel");
         require(x + width <= GRID_SIZE, "Block exceeds grid width");
         require(y + height <= GRID_SIZE, "Block exceeds grid height");
 
         uint256 pixelCount = width * height;
-        uint256 cost = pixelCount * PRICE_PER_PIXEL;
-        require(msg.value >= cost, "Insufficient payment");
+        uint256 cost = pixelCount * PRICE_PER_PIXEL; // $1 USDC per pixel
 
         // Check all pixels are available
         for (uint256 i = x; i < x + width; i++) {
@@ -100,6 +116,9 @@ contract PixelBillboard is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
                 require(pixelOwners[pixelKey] == 0, "Pixel already owned");
             }
         }
+
+        // Transfer USDC from buyer to contract
+        require(usdc.transferFrom(msg.sender, address(this), cost), "USDC transfer failed");
 
         // Register new agent
         if (!agents[msg.sender]) {
@@ -135,11 +154,6 @@ contract PixelBillboard is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
         // Mint NFT
         _safeMint(msg.sender, blockId);
         _setTokenURI(blockId, imageURI);
-
-        // Refund excess payment
-        if (msg.value > cost) {
-            payable(msg.sender).transfer(msg.value - cost);
-        }
 
         emit BlockPurchased(blockId, msg.sender, x, y, width, height, title);
     }
@@ -223,11 +237,11 @@ contract PixelBillboard is ERC721, ERC721URIStorage, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @dev Withdraw contract funds
+     * @dev Withdraw contract funds (USDC)
      */
     function withdrawFunds() external onlyOwner nonReentrant {
-        uint256 balance = address(this).balance;
-        payable(owner()).transfer(balance);
+        uint256 balance = usdc.balanceOf(address(this));
+        require(usdc.transfer(owner(), balance), "USDC transfer failed");
         emit FundsWithdrawn(owner(), balance);
     }
 
