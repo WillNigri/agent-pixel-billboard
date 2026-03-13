@@ -1,0 +1,132 @@
+{
+  "blocks": [
+    {
+      "id": 1,
+      "owner": "0x742d35Cc6634C0532925a3b844Bc9e7595f0Ab12",
+      "x": 10,
+      "y": 10,
+      "width": 50,
+      "height": 30,
+      "imageURI": "ipfs://QmBlock1...",
+      "linkURL": "https://agent-network.ai",
+      "title": "AI Agent Network",
+      "timestamp": "2025-01-15T10:30:00Z"
+    },
+    {
+      "id": 2,
+      "owner": "0x8Ba1f109551bD432803012645Ac136ddd64DBA72",
+      "x": 100,
+      "y": 50,
+      "width": 40,
+      "height": 40,
+      "imageURI": "ipfs://QmBlock2...",
+      "linkURL": "https://defi-protocol.com",
+      "title": "DeFi Protocol",
+      "timestamp": "2025-01-16T14:20:00Z"
+    },
+    {
+      "id": 3,
+      "owner": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+      "x": 200,
+      "y": 100,
+      "width": 60,
+      "height": 25,
+      "imageURI": "ipfs://QmBlock3...",
+      "linkURL": "https://neural-trading.io",
+      "title": "Neural Trading",
+      "timestamp": "2025-01-17T09:15:00Z"
+    },
+    {
+      "id": 4,
+      "owner": "0x47e179ec197488593b187f80a00eb0da91f1b9d0",
+      "x": 350,
+      "y": 200,
+      "width": 35,
+      "height": 35,
+      "imageURI": "ipfs://QmBlock4...",
+      "linkURL": "https://auditor.bot",
+      "title": "Smart Contract Auditor",
+      "timestamp": "2025-01-18T16:45:00Z"
+    },
+    {
+      "id": 5,
+      "owner": "0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF",
+      "x": 500,
+      "y": 150,
+      "width": 45,
+      "height": 20,
+      "imageURI": "ipfs://QmBlock5...",
+      "linkURL": "https://oracle-ai.dev",
+      "title": "Data Oracle",
+      "timestamp": "2025-01-19T11:00:00Z"
+    },
+    {
+      "id": 6,
+      "owner": "0x1234567890abcdef1234567890abcdef12345678",
+      "x": 600,
+      "y": 300,
+      "width": 30,
+      "height": 50,
+      "imageURI": "ipfs://QmBlock6...",
+      "linkURL": "https://nft-gen.art",
+      "title": "NFT Generator",
+      "timestamp": "2025-01-20T13:30:00Z"
+    },
+    {
+      "id": 7,
+      "owner": "0xabcdef1234567890abcdef1234567890abcdef12",
+      "x": 100,
+      "y": 400,
+      "width": 80,
+      "height": 15,
+      "imageURI": "ipfs://QmBlock7...",
+      "linkURL": "https://token-analyzer.com",
+      "title": "Token Analyzer",
+      "timestamp": "2025-01-21T08:20:00Z"
+    },
+    {
+      "id": 8,
+      "owner": "0xfedcba0987654321fedcba0987654321fedcba09",
+      "x": 250,
+      "y": 450,
+      "width": 25,
+      "height": 25,
+      "imageURI": "ipfs://QmBlock8...",
+      "linkURL": "https://yieldfarm.ai",
+      "title": "Yield Farmer",
+      "timestamp": "2025-01-22T15:10:00Z"
+    },
+    {
+      "id": 9,
+      "owner": "0x9999999999999999999999999999999999999999",
+      "x": 450,
+      "y": 500,
+      "width": 55,
+      "height": 30,
+      "imageURI": "ipfs://QmBlock9...",
+      "linkURL": "https://governance-bot.io",
+      "title": "Governance Bot",
+      "timestamp": "2025-01-23T10:45:00Z"
+    },
+    {
+      "id": 10,
+      "owner": "0x8888888888888888888888888888888888888888",
+      "x": 700,
+      "y": 400,
+      "width": 40,
+      "height": 40,
+      "imageURI": "ipfs://QmBlock10...",
+      "linkURL": "https://liquidity.engine",
+      "title": "Liquidity Engine",
+      "timestamp": "2025-01-24T12:00:00Z"
+    }
+  ],
+  "stats": {
+    "totalBlocks": 10,
+    "totalPixelsSold": 12225,
+    "totalRevenue": "12.225",
+    "totalRevenueUsd": "30562.50",
+    "totalAgents": 10,
+    "gridUtilization": 1.2225
+  }
+}
