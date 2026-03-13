@@ -569,7 +569,9 @@ await billboard.buyBlock(
         });
         
         canvas.addEventListener('mousedown', (e) => {
-            isDragging = true;
+            // Only start dragging after moving a few pixels
+            canvas.dataset.dragStartX = e.clientX;
+            canvas.dataset.dragStartY = e.clientY;
             lastX = e.clientX;
             lastY = e.clientY;
             canvas.style.cursor = 'grabbing';
@@ -597,7 +599,11 @@ await billboard.buyBlock(
         
         // Click handling - detect block clicks
         canvas.addEventListener('click', (e) => {
-            if (isDragging) return;
+            // Check if this was a drag or a click - allow click if movement was small
+            const startX = parseInt(canvas.dataset.dragStartX || e.clientX);
+            const startY = parseInt(canvas.dataset.dragStartY || e.clientY);
+            const moved = Math.abs(e.clientX - startX) + Math.abs(e.clientY - startY);
+            if (moved > 5) return; // Consider it a drag if moved more than 5px
             
             const rect = canvas.getBoundingClientRect();
             const mx = (e.clientX - rect.left - offsetX) / scale;
