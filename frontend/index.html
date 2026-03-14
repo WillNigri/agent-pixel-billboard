@@ -572,7 +572,7 @@ await billboard.buyBlock(
         });
         
         canvas.addEventListener('mousedown', (e) => {
-            // Only start dragging after moving a few pixels
+            isDragging = true;
             canvas.dataset.dragStartX = e.clientX;
             canvas.dataset.dragStartY = e.clientY;
             lastX = e.clientX;
@@ -704,7 +704,7 @@ await billboard.buyBlock(
                 return `
                     <div class="dir-card" onclick="focusBlock(${block.id})" style="border-left:3px solid ${color}">
                         <div class="dir-card-title">${block.title || 'Untitled'}</div>
-                        <div class="dir-card-link">${block.linkURL ? new URL(block.linkURL).hostname : 'No link'}</div>
+                        <div class="dir-card-link">${block.linkURL ? (() => { try { return new URL(block.linkURL).hostname; } catch(e) { return block.linkURL; } })() : 'No link'}</div>
                         <div class="dir-card-meta">${block.width}×${block.height} · ${truncateAddress(block.owner)}</div>
                     </div>
                 `;
@@ -877,7 +877,8 @@ await billboard.buyBlock(
                 loadFromBlockchain();
             } else {
                 console.error('ethers.js not loaded');
-                loadMockData();
+                document.getElementById('stats-line').textContent = 'Failed to load ethers.js';
+                document.getElementById('stats-line').style.color = '#ef4444';
             }
         }, 500);
     </script>
