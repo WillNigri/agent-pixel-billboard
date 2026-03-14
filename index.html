@@ -815,89 +815,56 @@ await billboard.buyBlock(
                 
             } catch (err) {
                 console.error('Error loading from blockchain:', err);
-                document.getElementById('stats-line').textContent = 'Error loading - using demo data';
+                document.getElementById('stats-line').textContent = 'Error connecting to Base — retrying...';
                 document.getElementById('stats-line').style.color = '#ef4444';
                 
-                // Load mock data for demo
-                loadMockData();
-            }
-        }
-        
-        // Mock data fallback (matches real on-chain data)
-        function loadMockData() {
-            // Block 1: 1x1 at (0,0) - green
-            const block1Colors = [];
-            for (let i = 0; i < 1 * 1; i++) {
-                block1Colors.push('rgb(0,255,0)'); // green
-            }
-            
-            // Block 2: 5x5 at (10,10) - rainbow
-            const block2Colors = [];
-            for (let y = 0; y < 5; y++) {
-                for (let x = 0; x < 5; x++) {
-                    const hue = (x / 5) * 360;
-                    // HSL to RGB approximation for rainbow
-                    block2Colors.push(`hsl(${hue}, 100%, 50%)`);
-                }
-            }
-            
-            // Block 3: 10x10 at (50,50) - smiley face
-            const block3Colors = [];
-            for (let y = 0; y < 10; y++) {
-                for (let x = 0; x < 10; x++) {
-                    // Yellow background
-                    let color = 'rgb(255,255,0)';
-                    
-                    // Black eyes at (2,3) and (7,3)
-                    if ((x === 2 || x === 7) && y === 3) {
-                        color = 'rgb(0,0,0)';
-                    }
-                    // Black mouth (smile)
-                    if (y === 6) {
-                        if (x >= 2 && x <= 7) {
-                            if (x === 2 || x === 7) {
-                                color = 'rgb(0,0,0)';
-                            } else if (x >= 3 && x <= 6) {
-                                color = 'rgb(0,0,0)';
-                            }
+                // Retry with backup RPC after 3 seconds
+                setTimeout(async () => {
+                    try {
+                        const backupProvider = new ethers.JsonRpcProvider('https://base.llamarpc.com');
+                        const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, backupProvider);
+                        const [rawBlocks, stats] = await Promise.all([
+                            contract.getAllBlocks(),
+                            contract.getStats()
+                        ]);
+                        
+                        blocks = [];
+                        for (let i = 0; i < rawBlocks.length; i++) {
+                            const b = rawBlocks[i];
+                            const w = Number(b.width);
+                            const h = Number(b.height);
+                            let pixelColors = [];
+                            try {
+                                const colorBytes = await contract.getPixelColors(Number(b.x), Number(b.y), w, h);
+                                const bytes = ethers.getBytes(colorBytes);
+                                for (let j = 0; j < bytes.length; j += 3) {
+                                    pixelColors.push(`rgb(${bytes[j]},${bytes[j+1]},${bytes[j+2]})`);
+                                }
+                            } catch (e) { pixelColors = []; }
+                            
+                            blocks.push({
+                                id: Number(b.id), owner: b.owner,
+                                x: Number(b.x), y: Number(b.y),
+                                width: w, height: h,
+                                linkURL: b.linkURL, title: b.title,
+                                pixelColors
+                            });
                         }
+                        
+                        const [totalBlocks, totalPixels, , totalAgents] = stats;
+                        document.getElementById('stats-line').textContent =
+                            `${totalBlocks} block${Number(totalBlocks) !== 1 ? 's' : ''} · ${Number(totalPixels)} pixels · ${Number(totalAgents)} agent${Number(totalAgents) !== 1 ? 's' : ''}`;
+                        document.getElementById('stats-line').style.color = '';
+                        
+                        draw();
+                        drawMinimap();
+                        renderDirectory();
+                    } catch (err2) {
+                        console.error('Backup RPC also failed:', err2);
+                        document.getElementById('stats-line').textContent = 'Could not connect to Base network';
                     }
-                    // Smile curve
-                    if (y === 7 && (x === 3 || x === 6)) {
-                        color = 'rgb(0,0,0)';
-                    }
-                    
-                    block3Colors.push(color);
-                }
+                }, 3000);
             }
-            
-            blocks = [
-                { id: 1, owner: '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD00', x: 0, y: 0, width: 1, height: 1, linkURL: 'https://example.com/agent1', title: 'Tiny Agent', pixelColors: block1Colors },
-                { id: 2, owner: '0x1234567890abcdef1234567890abcdef12345678', x: 10, y: 10, width: 5, height: 5, linkURL: 'https://example.com/agent2', title: 'Rainbow Agent', pixelColors: block2Colors },
-                { id: 3, owner: '0xabcdef1234567890abcdef1234567890abcdef12', x: 50, y: 50, width: 10, height: 10, linkURL: 'https://example.com/agent3', title: 'Smiley Agent', pixelColors: block3Colors }
-            ];
-            
-            document.getElementById('stats-line').textContent = '3 blocks · 126 pixels · 1 agent';
-            
-            const jsonLd = {
-                "@context": "https://schema.org",
-                "@type": "WebSite",
-                "name": "Agent Billboard",
-                "mainEntity": {
-                    "@type": "Collection",
-                    "numberOfItems": 3,
-                    "itemListElement": blocks.map(b => ({
-                        "@type": "WebPage",
-                        "name": b.title,
-                        "url": b.linkURL
-                    }))
-                }
-            };
-            document.getElementById('blocks-data').textContent = JSON.stringify(jsonLd);
-            
-            draw();
-            drawMinimap();
-            renderDirectory();
         }
         
         // Init
