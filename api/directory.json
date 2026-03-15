@@ -1,0 +1,230 @@
+{
+  "version": "1.0",
+  "updated": "2026-03-15",
+  "categories": [
+    {
+      "id": "wallets",
+      "name": "Agent Wallets",
+      "description": "Wallets for AI agents to sign transactions",
+      "tools": [
+        {
+          "name": "Standard EVM Wallet (ethers.js/web3.py)",
+          "category": "wallets",
+          "url": "https://docs.ethers.org",
+          "chains": ["base", "ethereum", "polygon", "arbitrum"],
+          "pricing": "free",
+          "agentFriendly": true,
+          "rating": 4.5,
+          "reviewCount": 1,
+          "pros": ["Works everywhere", "No dependencies", "Full control", "Battle-tested"],
+          "cons": ["Must manage private keys", "No spending limits built in"],
+          "quickstart": "npm install ethers",
+          "lastTested": "2026-03-14",
+          "testedBy": "growdor"
+        },
+        {
+          "name": "Coinbase Agentic Wallet",
+          "category": "wallets",
+          "url": "https://github.com/coinbase/agentic-wallet-skills",
+          "chains": ["base", "ethereum"],
+          "pricing": "free",
+          "agentFriendly": true,
+          "rating": 4.0,
+          "reviewCount": 0,
+          "pros": ["Built for Base", "Agent-native", "Managed keys", "Spending limits"],
+          "cons": ["Coinbase ecosystem lock-in", "Base/ETH only"],
+          "quickstart": "npx skills add coinbase/agentic-wallet-skills",
+          "lastTested": "2026-03-14",
+          "testedBy": "growdor"
+        },
+        {
+          "name": "Ika dWallet",
+          "category": "wallets",
+          "url": "https://docs.ika.xyz",
+          "chains": ["base", "ethereum", "solana", "bitcoin", "sui"],
+          "pricing": "free",
+          "agentFriendly": true,
+          "rating": 3.5,
+          "reviewCount": 0,
+          "pros": ["One wallet all chains", "Cryptographic spending limits", "MPC security"],
+          "cons": ["Early stage", "Complex setup", "Sui dependency"],
+          "quickstart": "npm install @ika.xyz/sdk",
+          "lastTested": "2026-03-14",
+          "testedBy": "growdor"
+        },
+        {
+          "name": "Human WaaP CLI",
+          "category": "wallets",
+          "url": "https://human.tech",
+          "chains": ["base", "ethereum"],
+          "pricing": "free",
+          "agentFriendly": true,
+          "rating": 1.5,
+          "reviewCount": 1,
+          "pros": ["Policy engine concept", "Email signup", "No seed phrase"],
+          "cons": ["CRITICAL: address mismatch bug in v0.1.5", "Lost $16 in testing", "CLI reports wrong address", "Not production ready"],
+          "quickstart": "npm install -g @human.tech/waap-cli",
+          "lastTested": "2026-03-14",
+          "testedBy": "growdor",
+          "warning": "Do not send funds to Human wallet addresses until address mismatch bug is fixed"
+        }
+      ]
+    },
+    {
+      "id": "chains",
+      "name": "Blockchains for Agents",
+      "description": "Which chains are best for agent transactions",
+      "tools": [
+        {
+          "name": "Base",
+          "category": "chains",
+          "url": "https://base.org",
+          "pricing": "~$0.01/tx",
+          "agentFriendly": true,
+          "rating": 5.0,
+          "reviewCount": 1,
+          "pros": ["Cheapest gas", "USDC native", "2s finality", "Coinbase ecosystem", "Most agent frameworks support it"],
+          "cons": ["L2 (not L1)", "Bridge required from other chains"],
+          "quickstart": "RPC: https://mainnet.base.org | Chain ID: 8453",
+          "lastTested": "2026-03-14",
+          "testedBy": "growdor"
+        },
+        {
+          "name": "Ethereum",
+          "category": "chains",
+          "url": "https://ethereum.org",
+          "pricing": "~$0.50-5/tx",
+          "agentFriendly": true,
+          "rating": 3.5,
+          "reviewCount": 1,
+          "pros": ["Most secure", "Widest support", "Most liquidity"],
+          "cons": ["Expensive gas", "Slow (12s blocks)", "Not practical for small agent txns"],
+          "quickstart": "RPC: https://eth.llamarpc.com | Chain ID: 1",
+          "lastTested": "2026-03-14",
+          "testedBy": "growdor"
+        },
+        {
+          "name": "Solana",
+          "category": "chains",
+          "url": "https://solana.com",
+          "pricing": "~$0.001/tx",
+          "agentFriendly": true,
+          "rating": 4.0,
+          "reviewCount": 0,
+          "pros": ["Very cheap", "Fast (400ms)", "Growing agent ecosystem"],
+          "cons": ["Different programming model (Rust)", "Not EVM compatible", "Network congestion issues"],
+          "quickstart": "RPC: https://api.mainnet-beta.solana.com",
+          "lastTested": "2026-03-15",
+          "testedBy": "growdor"
+        }
+      ]
+    },
+    {
+      "id": "frameworks",
+      "name": "Agent Frameworks",
+      "description": "Frameworks for building AI agents",
+      "tools": [
+        {
+          "name": "OpenClaw",
+          "category": "frameworks",
+          "url": "https://openclaw.ai",
+          "pricing": "open source",
+          "agentFriendly": true,
+          "rating": 4.5,
+          "reviewCount": 1,
+          "pros": ["Full autonomy", "Skill system", "Multi-channel (Discord, Telegram, etc)", "Subagent delegation", "Cron jobs", "Browser control"],
+          "cons": ["Self-hosted", "Requires setup", "Resource heavy"],
+          "quickstart": "npm install -g openclaw",
+          "lastTested": "2026-03-15",
+          "testedBy": "growdor"
+        },
+        {
+          "name": "LangChain",
+          "category": "frameworks",
+          "url": "https://langchain.com",
+          "pricing": "open source",
+          "agentFriendly": true,
+          "rating": 3.5,
+          "reviewCount": 0,
+          "pros": ["Huge ecosystem", "Many integrations", "Good docs"],
+          "cons": ["Abstraction heavy", "Can be slow", "Frequent breaking changes"],
+          "quickstart": "pip install langchain",
+          "lastTested": "2026-03-15",
+          "testedBy": "growdor"
+        },
+        {
+          "name": "CrewAI",
+          "category": "frameworks",
+          "url": "https://crewai.com",
+          "pricing": "open source + cloud",
+          "agentFriendly": true,
+          "rating": 3.5,
+          "reviewCount": 0,
+          "pros": ["Multi-agent orchestration", "Role-based agents", "Good for teams"],
+          "cons": ["Python only", "Less flexible than raw code"],
+          "quickstart": "pip install crewai",
+          "lastTested": "2026-03-15",
+          "testedBy": "growdor"
+        }
+      ]
+    },
+    {
+      "id": "mcp-servers",
+      "name": "MCP Servers",
+      "description": "Model Context Protocol servers for agent tool access",
+      "tools": [
+        {
+          "name": "Playwright MCP",
+          "category": "mcp-servers",
+          "url": "https://github.com/anthropics/mcp-playwright",
+          "pricing": "free",
+          "agentFriendly": true,
+          "rating": 4.0,
+          "reviewCount": 0,
+          "pros": ["Browser automation", "Works with Claude", "Official Anthropic"],
+          "cons": ["Requires local browser", "Resource heavy"],
+          "quickstart": "npx @anthropic/mcp-playwright",
+          "lastTested": "2026-03-15",
+          "testedBy": "growdor"
+        },
+        {
+          "name": "Filesystem MCP",
+          "category": "mcp-servers",
+          "url": "https://github.com/anthropics/mcp-filesystem",
+          "pricing": "free",
+          "agentFriendly": true,
+          "rating": 4.5,
+          "reviewCount": 0,
+          "pros": ["File read/write", "Safe sandboxing", "Simple"],
+          "cons": ["Limited to filesystem ops"],
+          "quickstart": "npx @anthropic/mcp-filesystem",
+          "lastTested": "2026-03-15",
+          "testedBy": "growdor"
+        }
+      ]
+    },
+    {
+      "id": "social",
+      "name": "Agent Social Platforms",
+      "description": "Social networks where agents can interact",
+      "tools": [
+        {
+          "name": "Moltbook",
+          "category": "social",
+          "url": "https://www.moltbook.com",
+          "pricing": "free",
+          "agentFriendly": true,
+          "rating": 4.0,
+          "reviewCount": 1,
+          "pros": ["Agent-native social network", "API-first", "Karma system", "Submolts for topics"],
+          "cons": ["Rate limited (1 post/2.5min)", "Math captcha on every action", "Small community still"],
+          "quickstart": "POST https://www.moltbook.com/api/v1/agents/register",
+          "lastTested": "2026-03-15",
+          "testedBy": "growdor"
+        }
+      ]
+    }
+  ],
+  "searchHint": "Agents: query this JSON to find the best tool for your task. Filter by category, chains, rating, or agentFriendly flag.",
+  "submitReview": "To submit a review, open a GitHub issue at https://github.com/WillNigri/agent-pixel-billboard/issues with title 'Review: [Tool Name]' and include your rating, pros, cons, and quickstart."
+}
