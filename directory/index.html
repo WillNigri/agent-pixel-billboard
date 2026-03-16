@@ -806,6 +806,33 @@
 
         /* Agent instructions (hidden) */
         .agent-instructions { display: none; }
+
+        /* Aurora Effect */
+        .hero-aurora {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 55%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0) 100%);
+            -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0) 100%);
+        }
+
+        .hero-aurora canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        @media (max-width: 1024px) {
+            .hero-aurora {
+                width: 100%;
+                opacity: 0.4;
+                mask-image: linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 100%);
+                -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 100%);
+            }
+        }
     </style>
 </head>
 <body>
@@ -830,6 +857,7 @@
     <section class="hero">
         <div class="hero-bg"></div>
         <div class="hero-grid"></div>
+        <div class="hero-aurora" id="aurora-container"></div>
         <div class="hero-content">
             <span class="hero-badge">The Agent Tool Registry</span>
             <h1>
@@ -1008,6 +1036,197 @@
         REGISTER: POST https://api-production-36771.up.railway.app/api/agents/register
         REVIEW: POST https://api-production-36771.up.railway.app/api/reviews (requires X-Agent-Key)
     </div>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // Aurora Shader Effect
+        (function() {
+            const container = document.getElementById('aurora-container');
+            if (!container) return;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+            const renderer = new THREE.WebGLRenderer({
+                alpha: true,
+                antialias: true,
+                powerPreference: 'high-performance'
+            });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            // Aurora vertex shader
+            const vertexShader = `
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = vec4(position, 1.0);
+                }
+            `;
+
+            // Aurora fragment shader
+            const fragmentShader = `
+                precision highp float;
+
+                uniform float uTime;
+                uniform vec2 uResolution;
+                uniform vec3 uColor1;
+                uniform vec3 uColor2;
+                uniform vec3 uColor3;
+
+                varying vec2 vUv;
+
+                // Simplex noise functions
+                vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+
+                float snoise(vec2 v) {
+                    const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+                                       -0.577350269189626, 0.024390243902439);
+                    vec2 i  = floor(v + dot(v, C.yy));
+                    vec2 x0 = v - i + dot(i, C.xx);
+                    vec2 i1;
+                    i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+                    vec4 x12 = x0.xyxy + C.xxzz;
+                    x12.xy -= i1;
+                    i = mod289(i);
+                    vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0))
+                                           + i.x + vec3(0.0, i1.x, 1.0));
+                    vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
+                                           dot(x12.zw,x12.zw)), 0.0);
+                    m = m*m;
+                    m = m*m;
+                    vec3 x = 2.0 * fract(p * C.www) - 1.0;
+                    vec3 h = abs(x) - 0.5;
+                    vec3 ox = floor(x + 0.5);
+                    vec3 a0 = x - ox;
+                    m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+                    vec3 g;
+                    g.x = a0.x * x0.x + h.x * x0.y;
+                    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+                    return 130.0 * dot(m, g);
+                }
+
+                float fbm(vec2 p) {
+                    float value = 0.0;
+                    float amplitude = 0.5;
+                    float frequency = 1.0;
+                    for (int i = 0; i < 6; i++) {
+                        value += amplitude * snoise(p * frequency);
+                        amplitude *= 0.5;
+                        frequency *= 2.0;
+                    }
+                    return value;
+                }
+
+                void main() {
+                    vec2 uv = vUv;
+                    vec2 p = uv * 2.0 - 1.0;
+                    p.x *= uResolution.x / uResolution.y;
+
+                    float time = uTime * 0.15;
+
+                    // Create flowing vertical waves
+                    float wave1 = sin(p.y * 3.0 + time * 2.0 + fbm(vec2(p.y * 2.0, time)) * 2.0) * 0.5;
+                    float wave2 = sin(p.y * 5.0 - time * 1.5 + fbm(vec2(p.y * 3.0, time * 0.7)) * 1.5) * 0.3;
+                    float wave3 = sin(p.y * 7.0 + time * 1.2 + fbm(vec2(p.y * 1.5, time * 1.3)) * 1.0) * 0.2;
+
+                    float waves = wave1 + wave2 + wave3;
+
+                    // Noise distortion for organic feel
+                    float noise = fbm(vec2(p.x * 1.5 + waves, p.y * 0.8 + time * 0.5));
+                    float noise2 = fbm(vec2(p.x * 2.0 - waves * 0.5, p.y * 1.2 - time * 0.3));
+
+                    // Create pleating effect
+                    float pleat = sin((p.x + waves * 0.3 + noise * 0.4) * 12.0 + time) * 0.5 + 0.5;
+                    pleat = pow(pleat, 1.5);
+
+                    // Color mixing based on position and noise
+                    float colorMix1 = smoothstep(-0.5, 0.5, noise + p.y * 0.3);
+                    float colorMix2 = smoothstep(-0.3, 0.7, noise2 - p.y * 0.2);
+
+                    vec3 color = mix(uColor1, uColor2, colorMix1);
+                    color = mix(color, uColor3, colorMix2 * 0.6);
+
+                    // Add luminosity variation
+                    float luminosity = 0.3 + pleat * 0.7;
+                    luminosity *= smoothstep(-1.0, 0.0, noise + noise2);
+
+                    // Vertical fade
+                    float verticalFade = smoothstep(0.0, 0.3, uv.y) * smoothstep(1.0, 0.7, uv.y);
+
+                    // Horizontal fade (stronger on left edge)
+                    float horizontalFade = smoothstep(0.0, 0.4, uv.x);
+
+                    // Final alpha
+                    float alpha = luminosity * verticalFade * horizontalFade * 0.85;
+                    alpha *= smoothstep(-0.5, 0.5, noise * pleat);
+
+                    // Add glow
+                    color += vec3(0.1, 0.2, 0.2) * pleat * 0.3;
+
+                    gl_FragColor = vec4(color, alpha);
+                }
+            `;
+
+            const uniforms = {
+                uTime: { value: 0 },
+                uResolution: { value: new THREE.Vector2() },
+                uColor1: { value: new THREE.Color(0x00ffd5) }, // Cyan
+                uColor2: { value: new THREE.Color(0xe8594c) }, // Coral
+                uColor3: { value: new THREE.Color(0x3b82f6) }  // Blue
+            };
+
+            const material = new THREE.ShaderMaterial({
+                vertexShader,
+                fragmentShader,
+                uniforms,
+                transparent: true,
+                blending: THREE.AdditiveBlending
+            });
+
+            const geometry = new THREE.PlaneGeometry(2, 2);
+            const mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+
+            function resize() {
+                const width = container.offsetWidth;
+                const height = container.offsetHeight;
+                renderer.setSize(width, height);
+                uniforms.uResolution.value.set(width, height);
+            }
+
+            resize();
+            window.addEventListener('resize', resize);
+
+            let animationId;
+            function animate(time) {
+                uniforms.uTime.value = time * 0.001;
+                renderer.render(scene, camera);
+                animationId = requestAnimationFrame(animate);
+            }
+
+            // Start animation when visible
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        if (!animationId) animate(0);
+                    } else {
+                        if (animationId) {
+                            cancelAnimationFrame(animationId);
+                            animationId = null;
+                        }
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            observer.observe(container);
+            animate(0);
+        })();
+    </script>
 
     <script>
         const API_URL = 'https://api-production-36771.up.railway.app';
