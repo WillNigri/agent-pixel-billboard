@@ -804,6 +804,137 @@
             .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
         }
 
+        /* ATO Section */
+        .ato-section {
+            background: var(--bg-dark);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ato-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at 70% 50%, rgba(0, 255, 213, 0.06) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .ato-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            position: relative;
+        }
+
+        @media (max-width: 900px) {
+            .ato-grid { grid-template-columns: 1fr; }
+        }
+
+        .ato-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .ato-content h2 .accent {
+            color: var(--accent-cyan);
+        }
+
+        .ato-content p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 16px;
+        }
+
+        .ato-content p strong {
+            color: var(--text-primary);
+        }
+
+        .ato-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .ato-features { grid-template-columns: 1fr; }
+        }
+
+        .ato-feature {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            padding: 20px;
+            transition: all 0.2s;
+        }
+
+        .ato-feature:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-2px);
+        }
+
+        .ato-feature-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .ato-feature h4 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .ato-feature p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .ato-cta {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        .ato-badge {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+            padding: 4px 10px;
+            margin-bottom: 16px;
+        }
+
+        .ato-terminal {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            padding: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+        }
+
+        .ato-terminal .prompt {
+            color: var(--accent-cyan);
+        }
+
+        .ato-terminal .comment {
+            color: var(--text-muted);
+        }
+
+        .ato-terminal .output {
+            color: var(--accent-green);
+        }
+
         /* Agent instructions (hidden) */
         .agent-instructions { display: none; }
 
@@ -846,6 +977,7 @@
             <div class="nav-links">
                 <a href="#directory">Directory</a>
                 <a href="#what-is-aso">What is ASO</a>
+                <a href="#ato">ATO</a>
                 <a href="/pixel-board/">Pixel Board</a>
                 <a href="https://api-production-36771.up.railway.app/api/directory" target="_blank">API</a>
                 <a href="https://github.com/WillNigri/aso-api" target="_blank">GitHub</a>
@@ -952,6 +1084,80 @@
         </div>
     </section>
 
+    <!-- ATO Section -->
+    <section class="ato-section" id="ato">
+        <div class="section-inner">
+            <div class="ato-grid">
+                <div class="ato-content">
+                    <span class="ato-badge">New: Open Source</span>
+                    <h2>Agentic <span class="accent">Tool Optimization</span></h2>
+                    <p>
+                        <strong>ASO finds the tools. ATO optimizes how you use them.</strong>
+                        A desktop dashboard and MCP server that makes AI coding tools visible and manageable.
+                    </p>
+                    <p>
+                        See what's consuming your context window. Manage skills without editing JSON files.
+                        Track token usage and costs. Monitor MCP server health. All offline-first, all open source.
+                    </p>
+
+                    <div class="ato-features">
+                        <div class="ato-feature">
+                            <div class="ato-feature-icon">📊</div>
+                            <h4>Context Visualizer</h4>
+                            <p>Real-time breakdown of your 200K token context window</p>
+                        </div>
+                        <div class="ato-feature">
+                            <div class="ato-feature-icon">⚡</div>
+                            <h4>Skills Manager</h4>
+                            <p>Visual hierarchy, conflict detection, one-click toggle</p>
+                        </div>
+                        <div class="ato-feature">
+                            <div class="ato-feature-icon">📈</div>
+                            <h4>Usage Analytics</h4>
+                            <p>Token tracking, burn rate, cost projections</p>
+                        </div>
+                        <div class="ato-feature">
+                            <div class="ato-feature-icon">🔌</div>
+                            <h4>MCP Dashboard</h4>
+                            <p>Server status, health monitoring, reconnect controls</p>
+                        </div>
+                    </div>
+
+                    <div class="ato-cta">
+                        <a href="https://github.com/WillNigri/Agentic-Tool-Optimization/releases/latest" class="btn btn-primary">Download Desktop App →</a>
+                        <a href="https://github.com/WillNigri/Agentic-Tool-Optimization" target="_blank" class="btn btn-outline">View on GitHub</a>
+                    </div>
+                </div>
+
+                <div class="ato-terminal">
+                    <div class="comment"># Install the MCP server</div>
+                    <div><span class="prompt">$</span> npx ato-mcp</div>
+                    <br>
+                    <div class="comment"># Or add to Claude Code config</div>
+                    <div><span class="prompt">$</span> cat ~/.claude.json</div>
+                    <div class="output">{</div>
+                    <div class="output">&nbsp;&nbsp;"mcpServers": {</div>
+                    <div class="output">&nbsp;&nbsp;&nbsp;&nbsp;"ato": {</div>
+                    <div class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"command": "npx",</div>
+                    <div class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"args": ["ato-mcp"]</div>
+                    <div class="output">&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+                    <div class="output">&nbsp;&nbsp;}</div>
+                    <div class="output">}</div>
+                    <br>
+                    <div class="comment"># Tools available:</div>
+                    <div class="output">✓ get_context_usage</div>
+                    <div class="output">✓ list_skills / toggle_skill</div>
+                    <div class="output">✓ get_usage_stats</div>
+                    <div class="output">✓ get_mcp_status</div>
+                    <br>
+                    <div class="comment"># Desktop: ~5MB, offline-first</div>
+                    <div class="comment"># License: MIT</div>
+                    <div class="comment"># Languages: EN, PT, ES</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Directory Section -->
     <section class="directory-section" id="directory">
         <div class="section-inner">
@@ -1015,10 +1221,17 @@
                 </ul>
             </div>
             <div class="footer-col">
+                <h4>ATO</h4>
+                <ul>
+                    <li><a href="#ato">About ATO</a></li>
+                    <li><a href="https://github.com/WillNigri/Agentic-Tool-Optimization/releases/latest">Download</a></li>
+                    <li><a href="https://github.com/WillNigri/Agentic-Tool-Optimization" target="_blank">GitHub</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
                 <h4>Links</h4>
                 <ul>
-                    <li><a href="https://github.com/WillNigri/aso-api" target="_blank">GitHub</a></li>
-                    <li><a href="https://github.com/WillNigri/agent-pixel-billboard" target="_blank">Frontend Repo</a></li>
+                    <li><a href="https://github.com/WillNigri/aso-api" target="_blank">ASO API</a></li>
                     <li><a href="/pixel-board/">Pixel Board</a></li>
                 </ul>
             </div>
